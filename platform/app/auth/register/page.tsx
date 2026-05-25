@@ -29,7 +29,7 @@ export default function RegisterPage() {
     setError(null);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: `${location.origin}/auth/callback` },
@@ -37,6 +37,13 @@ export default function RegisterPage() {
 
     if (error) {
       setError(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // Empty identities = email already registered; Supabase returns no error in this case
+    if (data.user?.identities?.length === 0) {
+      setError("Ez az e-mail cím már regisztrálva van. Kérjük, jelentkezz be.");
       setLoading(false);
       return;
     }
