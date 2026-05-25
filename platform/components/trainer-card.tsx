@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { hu } from "@/messages/hu";
 
@@ -57,9 +58,9 @@ export function TrainerCard({
   if (compact) {
     return (
       <Link href={`/trainers/${id}`} className="group flex items-center gap-3 p-2.5 rounded-xl hover:bg-[var(--th-muted)] transition-colors">
-        <div className="w-12 h-12 rounded-xl overflow-hidden bg-[var(--th-muted)] shrink-0">
+        <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[var(--th-muted)] shrink-0">
           {profile_photo ? (
-            <img src={profile_photo} alt={full_name ?? ""} className="w-full h-full object-cover" />
+            <Image src={profile_photo} alt={full_name ?? ""} fill className="object-cover" sizes="48px" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <svg viewBox="0 0 24 24" className="w-6 h-6 text-[var(--th-border)]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -90,10 +91,12 @@ export function TrainerCard({
       {/* Photo */}
       <div className="relative rounded-2xl overflow-hidden bg-[var(--th-muted)] aspect-[4/4.5]">
         {profile_photo ? (
-          <img
+          <Image
             src={profile_photo}
             alt={full_name ?? ""}
-            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+            fill
+            className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

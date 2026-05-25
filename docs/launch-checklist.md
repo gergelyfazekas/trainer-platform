@@ -9,7 +9,7 @@ Mark items with [x] as completed.
 ## Mobile Responsiveness
 
 - [ ] Home page (`/`): hero, trainer cards, search bar at 375px / 414px / 768px
-- [ ] Trainer directory (`/trainers`): filter sidebar (collapse to drawer on mobile?), card list, map view
+- [x] Trainer directory (`/trainers`): filter sidebar collapses to toggle drawer on mobile (`MobileFilterToggle` component) ✅
 - [ ] Trainer profile (`/trainers/[id]`): gallery carousel, booking card → becomes MobileBar, gym map
 - [ ] Booking page (`/book/[trainerId]`): calendar slot picker, visitor form modal
 - [ ] Auth pages (`/auth/login`, `/auth/register`): form layout
@@ -23,16 +23,16 @@ Mark items with [x] as completed.
 
 ## SEO
 
-- [ ] Add `generateMetadata()` to home page (`/`) — title, description, OG image
-- [ ] Add `generateMetadata()` to trainer directory (`/trainers`)
+- [x] Add `generateMetadata()` to home page (`/`) — title, description, OG image ✅
+- [x] Add `generateMetadata()` to trainer directory (`/trainers`) ✅
 - [x] Add `generateMetadata()` to trainer profile pages (`/trainers/[id]`) — trainer name, bio, city, OG image ✅
 - [ ] OG image for trainer profiles (trainer photo + name overlay, or static fallback)
 - [ ] Add `<link rel="canonical">` tags
-- [ ] Add `robots.txt` (`/app/robots.ts` or `public/robots.txt`)
-- [ ] Add `sitemap.xml` (`/app/sitemap.ts` — include all active trainer profiles)
-- [ ] JSON-LD structured data on trainer profiles (`Person` schema with name, description, location)
-- [ ] Verify `<html lang="hu">` is set in root layout — ✅ already done
-- [ ] Add `<meta name="description">` fallback in root layout
+- [x] Add `robots.txt` (`app/robots.ts`) ✅
+- [x] Add `sitemap.xml` (`app/sitemap.ts` — includes all active trainer profiles) ✅
+- [x] JSON-LD structured data on trainer profiles (`Person` schema with name, description, address, specialties) ✅
+- [x] Verify `<html lang="hu">` is set in root layout ✅
+- [x] Add `<meta name="description">` fallback in root layout ✅ (already in `app/layout.tsx` metadata)
 
 ---
 
@@ -56,8 +56,8 @@ Mark items with [x] as completed.
 - [ ] Empty state on `/trainers` when no results match filters
 - [ ] Onboarding hint for new trainers with no subscription (prompt to subscribe)
 - [x] "Forgot password" link on `/auth/login` → `/auth/forgot-password` → `/auth/reset-password` flow ✅
-- [ ] Booking confirmation: notify visitor when trainer confirms/cancels (email via Resend)
-- [ ] Trainer profile: gallery photo count enforced by plan (3 for Basic, more for Featured)
+- [x] Booking confirmation: notify visitor when trainer confirms/cancels (email via Resend) ✅
+- [x] Trainer profile: gallery photo count enforced by plan (5 for Basic, 15 for Featured) — enforced at save, shown in edit UI ✅
 - [x] Success message on dashboard save actions (profile, availability, packages) ✅
 
 ---
@@ -75,8 +75,8 @@ Mark items with [x] as completed.
 
 ## Performance
 
-- [ ] Replace all `<img>` tags with Next.js `<Image>` component (automatic optimization)
-- [ ] Verify Supabase Storage images served via CDN (they are by default)
+- [x] Replace all `<img>` tags with Next.js `<Image>` component (`trainer-card.tsx`, `/trainers/[id]`, `/dashboard/profile`) ✅
+- [x] Verify Supabase Storage images served via CDN (they are by default) ✅
 - [ ] Check Lighthouse score on key pages (target: >90 performance on desktop)
 - [ ] Lazy-load Leaflet maps (already using `dynamic({ ssr: false })` — verify)
 - [ ] Profile photo and gallery: add blur placeholder while loading
@@ -139,8 +139,20 @@ Mark items with [x] as completed.
 
 ---
 
+## Security
+
+- [x] Rate limiting on public APIs (`/api/bookings`, `/api/messages`) — 5 req/min/IP via `lib/rate-limit.ts` ✅
+- [x] HTML injection protection in Resend email bodies — `escapeHtml()` applied to all user-supplied strings ✅
+- [x] PostgREST filter injection fix — search `q` sanitized, `availDays`/`availTimes` whitelist-validated ✅
+- [ ] CAPTCHA or stronger bot protection (current: honeypot + rate limit)
+- [ ] Content Security Policy headers (Vercel config)
+
+---
+
 ## Go-Live
 
+- [x] ÁSZF (Terms of Service) page at `/aszf` ✅
+- [ ] `/rolunk` (About us) page — footer link exists, page not created yet
 - [ ] Remove or redirect `/coming-soon` page
 - [ ] Set production environment to `NODE_ENV=production` (Vercel does this automatically)
 - [ ] Announce to first batch of trainers

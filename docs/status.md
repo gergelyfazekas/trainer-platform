@@ -91,6 +91,33 @@
 
 ---
 
+## What Was Implemented (2026-05-25) — Pre-launch fixes
+
+### Security
+- ✅ **HTML injection fixed** — `escapeHtml()` applied to all user-supplied strings in Resend email bodies (`/api/bookings`, `/api/messages`, `/dashboard/bookings` server action)
+- ✅ **Rate limiting** on public API endpoints — `lib/rate-limit.ts` (5 req/min/IP, module-level Map); applied to `POST /api/bookings` and `POST /api/messages`
+- ✅ **PostgREST filter injection fixed** — search `q` param stripped of injection chars (`(){}"'\`` etc.); `availDays`/`availTimes` validated against whitelist set before being used in raw filter strings
+
+### SEO
+- ✅ `generateMetadata` + Open Graph tags added to home page (`/`)
+- ✅ `generateMetadata` + Open Graph tags added to trainer directory (`/trainers`)
+- ✅ `app/robots.ts` — allows all crawlers, points to sitemap
+- ✅ `app/sitemap.ts` — dynamic, includes `/`, `/trainers`, `/aszf`, all active trainer profile pages
+- ✅ JSON-LD `Person` structured data injected on `/trainers/[id]` (name, description, jobTitle, address, knowsAbout)
+
+### Performance
+- ✅ All `<img>` tags replaced with Next.js `<Image>` throughout: `trainer-card.tsx` (both variants), `/trainers/[id]` profile photo, `/dashboard/profile` preview + gallery thumbnails
+- ✅ `fill` + correct `sizes` props set on all card/gallery images
+
+### Legal & UX
+- ✅ **ÁSZF page** created at `app/aszf/page.tsx` — Hungarian placeholder with 7 sections (service description, subscription terms, cancellation, visitor rights, GDPR, liability, contact)
+- ✅ **Footer links fixed** — ÁSZF → `/aszf`, Kapcsolat → `mailto:info@foglaljedzot.hu`, Rólunk → `/rolunk` (all now real links, not dead text)
+- ✅ **Mobile filter sidebar** — `components/mobile-filter-toggle.tsx` wraps FilterSidebar; toggle button shown on mobile (hidden on `md:`); trainers page layout changed to `flex-col md:flex-row`
+- ✅ **Gallery photo cap enforced** — Basic: 5 photos, Featured: 15 photos; enforced silently at save, limit shown in edit UI ("Max. X fotó")
+- ✅ **Booking status notification email** — trainer confirm/cancel server action now sends Resend email to visitor
+
+---
+
 ## What Was Implemented After Phase 6 (2026-05-17, continued)
 
 ### Hero & Visual Design
@@ -132,15 +159,15 @@
 
 See `launch-checklist.md` for task-level detail.
 
+- [ ] `/rolunk` (About us) page — footer link exists, page not yet created
 - [ ] Mobile responsiveness audit: public pages (home, directory, profile, booking, auth)
-- [ ] SEO: `generateMetadata` on home + directory; robots.txt; sitemap; JSON-LD
 - [ ] Loading states / skeletons
 - [ ] Hungarian copy review (all `messages/hu.ts` strings with native speaker)
 - [ ] Production config: live Stripe keys, `NEXT_PUBLIC_SITE_URL` on Vercel, Resend domain verification
 - [ ] End-to-end testing in Stripe test mode (all webhook events)
 - [ ] Accessibility audit (keyboard nav, ARIA labels, contrast)
-- [ ] Performance: replace `<img>` with Next.js `<Image>` throughout
 - [ ] Domain setup on Vercel
+- [x] Run Supabase migration 005 (`certificate_url`, `certificate_status` columns on profiles) ✅ — still need to create `trainer-certificates` storage bucket manually in Supabase dashboard with RLS policies (see migration file comments)
 
 ---
 

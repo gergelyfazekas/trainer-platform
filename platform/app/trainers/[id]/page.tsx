@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ScrollHeader } from "@/components/trainer-profile/scroll-header";
@@ -159,8 +160,32 @@ export default async function TrainerProfilePage({ params }: Props) {
   const gymLocations = gymRows ?? [];
   const packages = pkgRows ?? [];
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://foglaljedzot.hu";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: trainer.full_name,
+    description: trainer.bio ?? undefined,
+    jobTitle: "Személyi edző",
+    url: `${baseUrl}/trainers/${trainer.id}`,
+    image: trainer.profile_photo ?? undefined,
+    address: (trainer.city || trainer.county)
+      ? {
+          "@type": "PostalAddress",
+          addressLocality: trainer.city ?? undefined,
+          addressRegion: trainer.county ?? undefined,
+          addressCountry: "HU",
+        }
+      : undefined,
+    knowsAbout: specialties.length > 0 ? specialties : undefined,
+  };
+
   return (
     <div className="min-h-screen bg-[var(--th-bg)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ScrollHeader trainerName={trainer.full_name ?? ""} userInitial={userInitial} />
 
       {/* Page body: single outer grid so booking card aligns with the hero */}
@@ -183,10 +208,13 @@ export default async function TrainerProfilePage({ params }: Props) {
               {/* Portrait */}
               <div className="relative w-[200px] sm:w-[240px] md:w-full aspect-[4/5] rounded-[20px] overflow-hidden bg-[var(--th-muted)] shrink-0">
                 {trainer.profile_photo ? (
-                  <img
+                  <Image
                     src={trainer.profile_photo}
                     alt={trainer.full_name ?? ""}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 240px, 260px"
+                    priority
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-6xl text-[var(--th-fg-muted)]">

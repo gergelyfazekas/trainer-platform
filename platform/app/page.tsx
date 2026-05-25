@@ -1,9 +1,25 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TrainerCard } from "@/components/trainer-card";
 import { SearchBar } from "@/components/search-bar";
 import { Navbar } from "@/components/navbar";
 import { hu } from "@/messages/hu";
+
+export const metadata: Metadata = {
+  title: "foglalj edzőt – Személyi edzők Magyarországon",
+  description:
+    "Találd meg a tökéletes személyi edződ. Böngéssz Magyarország legjobb személyi edzői között és foglalj időpontot percek alatt.",
+  openGraph: {
+    title: "foglalj edzőt – Személyi edzők Magyarországon",
+    description:
+      "Találd meg a tökéletes személyi edződ. Böngéssz Magyarország legjobb személyi edzői között és foglalj időpontot percek alatt.",
+    url: process.env.NEXT_PUBLIC_SITE_URL,
+    siteName: "foglalj edzőt",
+    locale: "hu_HU",
+    type: "website",
+  },
+};
 
 
 
@@ -207,9 +223,21 @@ export default async function HomePage() {
           <div>
             <div className="font-semibold text-[var(--th-fg)] mb-3">Cég</div>
             <ul className="space-y-2 text-[var(--th-fg-muted)]">
-              <li>Rólunk</li>
-              <li>Kapcsolat</li>
-              <li>ÁSZF</li>
+              <li>
+                <Link href="/rolunk" className="hover:text-[var(--th-fg)] transition-colors">
+                  Rólunk
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:info@foglaljedzot.hu" className="hover:text-[var(--th-fg)] transition-colors">
+                  Kapcsolat
+                </a>
+              </li>
+              <li>
+                <Link href="/aszf" className="hover:text-[var(--th-fg)] transition-colors">
+                  ÁSZF
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
