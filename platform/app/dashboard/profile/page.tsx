@@ -222,7 +222,11 @@ export default function ProfilePage() {
             <PhotoUpload
               userId={userId}
               currentUrl={profile.profile_photo ?? null}
-              onUpload={(url) => setField("profile_photo", url)}
+              onUpload={async (url) => {
+                setField("profile_photo", url);
+                const supabase = createClient();
+                await supabase.from("profiles").update({ profile_photo: url }).eq("id", userId);
+              }}
               label="Profilfotó"
             />
           )}
