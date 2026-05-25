@@ -21,9 +21,110 @@ export const metadata: Metadata = {
   },
 };
 
+function ComingSoonPage() {
+  return (
+    <div className="min-h-screen bg-[#FAF8F3]">
+      <Navbar />
 
+      <main>
+        {/* Hero */}
+        <section className="relative bg-[#FAF8F3] overflow-hidden pt-16 md:pt-24 pb-16 md:pb-24 px-4 text-center">
+          <div className="absolute top-[-120px] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-[radial-gradient(ellipse,rgba(234,162,88,0.22),transparent_65%)] blur-3xl" aria-hidden="true" />
+          <div className="absolute top-[40px] right-[-100px] w-[500px] h-[400px] bg-[radial-gradient(ellipse,rgba(239,118,80,0.10),transparent_65%)] blur-3xl" aria-hidden="true" />
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-white" aria-hidden="true" />
+
+          <div className="relative z-10 max-w-[680px] mx-auto">
+            <div className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-full border border-[#D4A574]/30 bg-[#FEF3E2]/60 text-[#A0693A] text-[13px] font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D05A2E]" />
+              Hamarosan elindulunk
+            </div>
+
+            <h1 className="text-[42px] md:text-[58px] font-bold text-[var(--th-fg)] leading-[1.04] tracking-[-0.02em] mb-4">
+              Magyarország személyi&nbsp;edző platformja
+            </h1>
+            <p className="text-[var(--th-fg-muted)] text-base md:text-lg leading-relaxed max-w-[480px] mx-auto mb-8">
+              Dolgozunk az oldalon. Regisztrálj edzőként már most, és az induláskor elsők között leszel.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href="/auth/register"
+                className="w-full sm:w-auto bg-[var(--th-accent)] hover:brightness-95 text-[var(--th-accent-fg)] font-semibold rounded-full px-7 py-3.5 text-[15px] transition-all shadow-sm"
+              >
+                Edző regisztráció
+              </Link>
+              <Link
+                href="/auth/login"
+                className="w-full sm:w-auto border border-[var(--th-border)] hover:border-[var(--th-accent)]/50 hover:bg-[var(--th-muted)] text-[var(--th-fg)] font-semibold rounded-full px-7 py-3.5 text-[15px] transition-all"
+              >
+                Bejelentkezés
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Trainer CTA */}
+        <section className="bg-[var(--th-fg)] text-white py-20 px-6">
+          <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1 space-y-5">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--th-accent)] opacity-80">
+                Edzőknek
+              </p>
+              <h2 className="text-[36px] font-bold leading-[1.1]">
+                Hirdesd magad Magyarország
+                <br />
+                legjobb edzői között
+              </h2>
+              <ul className="space-y-2 text-[var(--th-muted)] text-[15px]">
+                <li>✓ Saját profiloldal fotókkal és szakágakkal</li>
+                <li>✓ Közvetlen foglalás és üzenetküldés</li>
+                <li>✓ Kiemelés a keresési találatokban</li>
+              </ul>
+              <Link
+                href="/auth/register"
+                className="inline-block bg-[var(--th-accent)] hover:brightness-95 text-[var(--th-accent-fg)] font-semibold rounded-full px-6 py-3 text-[15px] transition-all shadow-sm mt-2"
+              >
+                Regisztrálj edzőként
+              </Link>
+            </div>
+            <div className="flex-1 max-w-[420px] bg-white/10 rounded-2xl p-6 space-y-3">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-6 h-6 rounded-md bg-white/20" />
+                <div className="h-3 bg-white/30 rounded w-24" />
+              </div>
+              <div className="h-2.5 bg-white/20 rounded w-full" />
+              <div className="h-2.5 bg-white/15 rounded w-4/5" />
+              <div className="h-2.5 bg-white/15 rounded w-3/5" />
+              <div className="mt-5 grid grid-cols-3 gap-2">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-12 bg-white/10 rounded-xl" />
+                ))}
+              </div>
+              <div className="mt-3 h-2 bg-white/10 rounded w-full" />
+              <div className="h-2 bg-white/10 rounded w-2/3" />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="bg-[var(--th-bg)] border-t border-[var(--th-border)] py-12 px-6">
+        <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[13px] text-[var(--th-fg-muted)]">
+          <span className="text-[16px] font-medium text-[var(--th-fg)]">foglalj <span className="font-bold text-[var(--th-accent)]">edzőt</span></span>
+          <div className="flex items-center gap-6">
+            <Link href="/aszf" className="hover:text-[var(--th-fg)] transition-colors">ÁSZF</Link>
+            <a href="mailto:info@foglaljedzot.hu" className="hover:text-[var(--th-fg)] transition-colors">Kapcsolat</a>
+          </div>
+          <span>© {new Date().getFullYear()} foglalj edzőt</span>
+        </div>
+      </footer>
+    </div>
+  );
+}
 
 export default async function HomePage() {
+  if (process.env.PREPROD === "true") {
+    return <ComingSoonPage />;
+  }
   const supabase = await createClient();
 
   const { data: featured } = await supabase

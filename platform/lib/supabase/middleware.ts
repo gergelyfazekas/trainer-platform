@@ -30,12 +30,27 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
+  const path = request.nextUrl.pathname;
 
-  if (isDashboard && !user) {
+  if (path.startsWith("/dashboard") && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
+  }
+
+  if (process.env.PREPROD === "true") {
+    const allowed =
+      path === "/" ||
+      path.startsWith("/auth/") ||
+      path.startsWith("/aszf") ||
+      path.startsWith("/preview") ||
+      path.startsWith("/dashboard");
+
+    if (!allowed) {
+      const url = request.nextUrl.clone();
+      url.pathname = user ? "/preview" : "/";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;
