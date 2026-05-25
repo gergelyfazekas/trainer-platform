@@ -44,7 +44,8 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/auth/") ||
       path.startsWith("/aszf") ||
       path.startsWith("/preview") ||
-      path.startsWith("/dashboard");
+      path.startsWith("/dashboard") ||
+      (!!user && path.startsWith("/trainers/"));
 
     if (!allowed) {
       const url = request.nextUrl.clone();
