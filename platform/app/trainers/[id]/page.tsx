@@ -19,7 +19,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from("profiles")
     .select("full_name, bio, city, county, profile_photo")
     .eq("id", id)
-    .eq("is_active", true)
     .single();
 
   if (!trainer) return { title: "Edző nem található – foglalj edzőt" };
@@ -105,7 +104,7 @@ export default async function TrainerProfilePage({ params }: Props) {
   }
 
   const [{ data: trainer }, { data: gymRows }, { data: availSlots }, { data: existingBookings }, { data: pkgRows }] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", id).eq("is_active", true).single(),
+    supabase.from("profiles").select("*").eq("id", id).single(),
     supabase.from("trainer_gym_locations").select("name, city, postal_code, street_address").eq("trainer_id", id),
     supabase.from("availability_slots").select("day_of_week, start_time, end_time").eq("trainer_id", id),
     supabase
