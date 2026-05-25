@@ -110,9 +110,10 @@ Mark items with [x] as completed.
 - [ ] Run one real test transaction and confirm invoice has ÁFA + tax ID
 
 ### Vercel
-- [ ] Set all environment variables in Vercel project settings (not just `.env.local`)
-- [ ] Set `NEXT_PUBLIC_SITE_URL` for Stripe success/cancel URLs (fallback when Origin header missing) — added to `.env.local.example`
-- [ ] Configure custom domain
+- [x] Set all environment variables in Vercel project settings ✅ — 13 vars set for Production via CLI
+- [x] Set `NEXT_PUBLIC_SITE_URL=https://foglaljedzot.hu` ✅
+- [x] Configure custom domain ✅ — `foglaljedzot.hu` live, SSL auto-provisioned
+- [x] Framework Preset set to **Next.js** in Vercel dashboard ✅ — required or Vercel uses `@vercel/static-build` (no server functions, all routes 404)
 - [ ] Enable Vercel Analytics (optional, free tier)
 
 ### Resend

@@ -140,6 +140,24 @@
 
 ---
 
+## What Was Fixed (2026-05-25) — Vercel deployment
+
+### Hosting
+- ✅ **Site live at `https://foglaljedzot.hu`** — full Next.js app serving all 28 routes
+- ✅ **Framework Preset fixed** — was `null` (Vercel used `@vercel/static-build` → no server functions → all routes 404); changed to **Next.js** in Vercel dashboard → now uses `@vercel/next` correctly
+- ✅ **Env vars updated** — all 13 vars had been stored as empty strings in Vercel; re-added with correct values via CLI (`vercel env rm` + `vercel env add` for each)
+- ✅ **Trailing newlines stripped** — `STRIPE_PRICE_BASIC` and `STRIPE_WEBHOOK_SECRET` had trailing newlines in `.env.local`; Vercel CLI strips them on add (`> Removed trailing newline from stdin input`)
+- ✅ **SSL cert auto-provisioned** by Vercel (Let's Encrypt, issued 2026-05-25)
+- ✅ **Custom domain aliased** — `project-ys29k.vercel.app` redirects to `foglaljedzot.hu` (Vercel canonical domain behavior)
+- ✅ **Deployment Protection** — direct `.vercel.app` URLs require Vercel SSO (401); custom domain `foglaljedzot.hu` is public — this is expected Vercel behavior
+
+### Deployment notes
+- `proxy.ts` (Next.js 16 middleware) compiles correctly with Turbopack; the Webpack-only rename (`proxy.js` → `middleware.js`) is skipped but Turbopack outputs `middleware.js` directly — no action needed
+- `functions-config-manifest.json` correctly registers `/_middleware` with Node.js runtime
+- When `framework: null` in Vercel project settings, `@vercel/static-build` is used and produces no `functions/` directory → every route returns `x-vercel-error: NOT_FOUND`
+
+---
+
 ## What Was Implemented (2026-05-17, continued — brand + UX)
 
 ### Brand Identity
@@ -163,10 +181,10 @@ See `launch-checklist.md` for task-level detail.
 - [ ] Mobile responsiveness audit: public pages (home, directory, profile, booking, auth)
 - [ ] Loading states / skeletons
 - [ ] Hungarian copy review (all `messages/hu.ts` strings with native speaker)
-- [ ] Production config: live Stripe keys, `NEXT_PUBLIC_SITE_URL` on Vercel, Resend domain verification
+- [ ] Production config: live Stripe keys, Resend domain verification
 - [ ] End-to-end testing in Stripe test mode (all webhook events)
 - [ ] Accessibility audit (keyboard nav, ARIA labels, contrast)
-- [ ] Domain setup on Vercel
+- [x] Domain setup on Vercel ✅ — `foglaljedzot.hu` live, SSL cert provisioned, all env vars set
 - [x] Run Supabase migration 005 (`certificate_url`, `certificate_status` columns on profiles) ✅ — still need to create `trainer-certificates` storage bucket manually in Supabase dashboard with RLS policies (see migration file comments)
 
 ---
@@ -176,3 +194,6 @@ See `launch-checklist.md` for task-level detail.
 - Supabase project pauses after 1 week of inactivity on free tier — wake it up before testing
 - Next.js 16.2.4 uses `proxy.ts` instead of `middleware.ts` (breaking change from Next.js 14)
 - `avail_weekdays` / `avail_weekends` columns in migration 004 are arrays, not booleans — verify filter logic matches schema
+- **Vercel Framework Preset must be set to "Next.js"** — if left as null/Other, Vercel uses `@vercel/static-build` which produces no server functions and every route returns 404
+- **Vercel env vars via CLI store correctly but pull as empty** — `vercel env pull` shows values as `""` even when set; `vercel env ls` shows them as "Encrypted" (non-empty); use `vercel env rm` + `vercel env add` (piping value to stdin) to update
+- **Direct `.vercel.app` URLs require Vercel SSO** (return 401) — this is Deployment Protection on preview URLs; the custom domain `foglaljedzot.hu` is publicly accessible
