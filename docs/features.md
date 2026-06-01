@@ -28,7 +28,7 @@ Status legend: ✅ Done | 🟡 Partial | ❌ Not started
 | Edit languages spoken | ✅ | Multi-select |
 | Edit phone number | ✅ | Added in migration 002 |
 | Upload profile photo | ✅ | Direct to Supabase Storage |
-| Upload gallery photos | ✅ | Multi-photo, max depends on plan |
+| Upload gallery photos | ✅ | Multi-photo; Basic: max 5, Featured: max 15; enforced at save, shown in edit UI |
 | Add gym locations | ✅ | `trainer_gym_locations` table, map pin display |
 | Edit business name + tax ID | 🟡 | Fields exist in schema, verify dashboard exposes them |
 | Upload trainer certificate | ✅ | `/dashboard/profile` — JPG/PNG/PDF to `trainer-certificates` bucket; triggers admin review email |
@@ -40,9 +40,9 @@ Status legend: ✅ Done | 🟡 Partial | ❌ Not started
 | Set weekly availability slots | ✅ | `/dashboard/availability` — day + time ranges |
 | General availability toggles | ✅ | Morning/daytime/evening, weekdays/weekends |
 | View incoming booking requests | ✅ | `/dashboard/bookings` list |
-| Confirm booking | ✅ | Status → confirmed |
-| Cancel booking | ✅ | Status → cancelled |
-| Receive booking confirmation email | ✅ | Resend via `/api/bookings` |
+| Confirm booking | ✅ | Status → confirmed; visitor receives Resend email notification |
+| Cancel booking | ✅ | Status → cancelled; visitor receives Resend email notification |
+| Receive booking confirmation email | ✅ | Resend via `/api/bookings` (on initial booking submission) |
 
 ### Packages
 | Feature | Status | Notes |

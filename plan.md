@@ -233,9 +233,9 @@ This is the core monetization hook for the Featured tier. Keep it simple — no 
 | 3 — Public Pages | 5–6 | Visitors browse/search trainers, send messages, trainers get email alerts | ✅ Done |
 | 4 — Availability & Booking | 7–8 | Full calendar booking flow, email confirmations | ✅ Done |
 | 5 — Stripe Subscriptions | 9–10 | Both tiers (Basic + Featured) live in Stripe, HUF pricing, Stripe Tax on, webhook updates `is_active` + `is_featured`, featured trainers sort first | ✅ Done |
-| 6 — Polish & Launch | 11–12 | Mobile responsive, SEO, error states, Hungarian copy review, production mode on all services | 🔜 Next |
+| 6 — Polish & Launch | 11–12 | Mobile responsive, SEO, error states, Hungarian copy review, production mode on all services | 🔜 In progress |
 
-**Current status (as of 2026-05-17):** Phases 1–5 complete. Phase 6 (Polish & Launch) in progress — pre-launch fixes done, brand renamed to "foglalj edzőt" (domain: `foglaljedzot.hu`), certificate verification feature live. See `docs/status.md` for full Phase 6 log.
+**Current status (as of 2026-05-25):** Phases 1–5 complete. Phase 6 (Polish & Launch) in progress. Security fixes (HTML injection, rate limiting, PostgREST injection), full SEO layer (metadata, robots, sitemap, JSON-LD), `<Image>` migration, mobile filter sidebar, ÁSZF page, gallery cap, and booking status emails all done. Remaining blockers: `/rolunk` page, live Stripe/Resend config, mobile audit, accessibility audit, E2E test run. See `docs/status.md` for full log.
 
 ---
 

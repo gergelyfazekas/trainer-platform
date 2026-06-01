@@ -25,6 +25,7 @@ export default async function DashboardLayout({
     { href: "/dashboard/bookings", label: hu.dashboard.bookings },
     { href: "/dashboard/messages", label: hu.dashboard.messages },
     { href: "/dashboard/billing", label: hu.dashboard.billing },
+    { href: "/preview", label: hu.dashboard.preview },
   ];
 
   return <DashboardShell navItems={navItems}>{children}</DashboardShell>;

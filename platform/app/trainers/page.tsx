@@ -1,12 +1,27 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { TrainerCard } from "@/components/trainer-card";
 import { SearchBar } from "@/components/search-bar";
 import { FilterSidebar } from "@/components/filter-sidebar";
 import { ViewToggle } from "@/components/view-toggle";
 import { TrainerMapWrapper } from "@/components/trainer-map-wrapper";
+import { MobileFilterToggle } from "@/components/mobile-filter-toggle";
 import { Navbar } from "@/components/navbar";
 import { hu } from "@/messages/hu";
+
+export const metadata: Metadata = {
+  title: "Edzők böngészése – foglalj edzőt",
+  description:
+    "Böngéssz Magyarország legjobb személyi edzői között. Szűrj helyszín, szakterület, ár és elérhetőség szerint.",
+  openGraph: {
+    title: "Edzők böngészése – foglalj edzőt",
+    description:
+      "Böngéssz Magyarország legjobb személyi edzői között. Szűrj helyszín, szakterület, ár és elérhetőség szerint.",
+  },
+};
+
+const VALID_AVAIL_TIMES = new Set(["morning", "daytime", "evening"]);
+const VALID_AVAIL_DAYS = new Set(["weekdays", "weekends"]);
 
 interface Props {
   searchParams: Promise<{ q?: string; county?: string; city?: string; minRate?: string; maxRate?: string; view?: string; gyms?: string; langs?: string; availDays?: string; availTimes?: string }>;
@@ -16,8 +31,10 @@ export default async function TrainersPage({ searchParams }: Props) {
   const { q, county, city, minRate, maxRate, view, gyms, langs, availDays, availTimes } = await searchParams;
   const selectedGyms = gyms ? gyms.split(",").filter(Boolean) : [];
   const selectedLanguages = langs ? langs.split(",").filter(Boolean) : [];
-  const selectedAvailDays = availDays ? availDays.split(",").filter(Boolean) : [];
-  const selectedAvailTimes = availTimes ? availTimes.split(",").filter(Boolean) : [];
+  const selectedAvailDays = availDays ? availDays.split(",").filter((d) => VALID_AVAIL_DAYS.has(d)) : [];
+  const selectedAvailTimes = availTimes ? availTimes.split(",").filter((t) => VALID_AVAIL_TIMES.has(t)) : [];
+  // Strip characters that could inject into raw PostgREST filter strings
+  const sanitizedQ = q ? q.replace(/[(){}\[\]"'`,]/g, "").trim().slice(0, 100) : "";
   const isMapView = view === "map";
   const supabase = await createClient();
 
@@ -65,9 +82,9 @@ export default async function TrainersPage({ searchParams }: Props) {
       : query.in("id", ["00000000-0000-0000-0000-000000000000"]);
   }
 
-  if (q) {
+  if (sanitizedQ) {
     query = query.or(
-      `city.ilike.%${q}%,full_name.ilike.%${q}%,specialties.cs.{${q}}`
+      `city.ilike.%${sanitizedQ}%,full_name.ilike.%${sanitizedQ}%,specialties.cs.{${sanitizedQ}}`
     );
   }
 
@@ -134,8 +151,8 @@ export default async function TrainersPage({ searchParams }: Props) {
 
         <ViewToggle currentView={isMapView ? "map" : "list"} />
 
-        <div className="flex gap-6 items-start">
-          <aside className="w-56 shrink-0">
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          <MobileFilterToggle>
             <FilterSidebar
               initialCity={city}
               initialMinRate={minRate}
@@ -147,7 +164,7 @@ export default async function TrainersPage({ searchParams }: Props) {
               initialAvailDays={selectedAvailDays}
               initialAvailTimes={selectedAvailTimes}
             />
-          </aside>
+          </MobileFilterToggle>
 
           <div className="flex-1 min-w-0">
             {isMapView ? (

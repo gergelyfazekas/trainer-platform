@@ -36,6 +36,6 @@ export async function GET(request: Request) {
 function html(body: string, status: number) {
   return new Response(
     `<!doctype html><html><body style="font-family:sans-serif;padding:40px;max-width:480px">${body}</body></html>`,
-    { status, headers: { "Content-Type": "text/html" } }
+    { status, headers: { "Content-Type": "text/html; charset=utf-8" } }
   );
 }

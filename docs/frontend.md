@@ -21,8 +21,9 @@ Custom theme variables: `--th-*` CSS variables in `globals.css`
 
 | Route | File | Description |
 |---|---|---|
-| `/` | `app/page.tsx` | Home: hero, featured trainers, recent trainers |
-| `/trainers` | `app/trainers/page.tsx` | Trainer directory: search, filters, list/map toggle |
+| `/` | `app/page.tsx` | Home: hero, featured trainers, recent trainers. Has `metadata` export with OG tags |
+| `/trainers` | `app/trainers/page.tsx` | Trainer directory: search, filters, list/map toggle. Has `metadata` export. Filter sidebar collapses to drawer on mobile |
+| `/aszf` | `app/aszf/page.tsx` | Általános Szerződési Feltételek (Terms of Service) — Hungarian placeholder, 7 sections |
 | `/trainers/[id]` | `app/trainers/[id]/page.tsx` | Trainer profile: photos, bio, packages, gym map, booking card |
 | `/book/[trainerId]` | `app/book/[trainerId]/page.tsx` | Booking page wrapper |
 | `/book/[trainerId]` (view) | `app/book/[trainerId]/booking-view.tsx` | Calendar slot picker + visitor form |
@@ -72,9 +73,10 @@ Dashboard layout: `app/dashboard/layout.tsx` — thin Server Component: auth che
 ### Trainer Discovery
 | Component | File | Description |
 |---|---|---|
-| TrainerCard | `components/trainer-card.tsx` | Trainer card (2 variants: normal + compact). Shows photo, name, city, rate, languages, "Kiemelt" badge if featured, "Ellenőrzött" badge if `certificate_status === 'approved'` |
+| TrainerCard | `components/trainer-card.tsx` | Trainer card (2 variants: normal + compact). Uses Next.js `<Image fill>` for photos. Shows photo, name, city, rate, languages, "Kiemelt" badge if featured, "Ellenőrzött" badge if `certificate_status === 'approved'` |
 | SearchBar | `components/search-bar.tsx` | Location + specialty search with autocomplete; 54 Hungarian cities hardcoded |
 | FilterSidebar | `components/filter-sidebar.tsx` | Price range, county/city, gym, languages, availability day/time filters |
+| MobileFilterToggle | `components/mobile-filter-toggle.tsx` | Client Component wrapper: shows a "Szűrők" toggle button on mobile (`md:hidden`); hides/shows the wrapped FilterSidebar with CSS; always visible on `md:`. Replaces the fixed-width `<aside>` on the trainers page |
 | ViewToggle | `components/view-toggle.tsx` | Switch between list and map views |
 | CityBar | `components/city-bar.tsx` | City selector strip |
 | TrainerMapWrapper | `components/trainer-map-wrapper.tsx` | SSR-safe wrapper for Leaflet (dynamic import) |
@@ -126,6 +128,8 @@ Dashboard layout: `app/dashboard/layout.tsx` — thin Server Component: auth che
 
 ### Trainer Profile (`/trainers/[id]`)
 - **`generateMetadata()`** — dynamic `<title>` (`{name} – személyi edző, {city} | foglalj edzőt`), `<meta description>` (bio excerpt), OG title + description + trainer profile photo
+- **JSON-LD** — `<script type="application/ld+json">` with `Person` schema (name, description, jobTitle, address, knowsAbout)
+- Uses Next.js `<Image fill priority>` for the profile photo
 - Fetches trainer by ID (must be `is_active = true` — 404 otherwise)
 - GalleryCarousel (profile photo + gallery) — click to open fullscreen lightbox
 - Bio, specialties, languages, hourly rate
@@ -151,8 +155,8 @@ Dashboard layout: `app/dashboard/layout.tsx` — thin Server Component: auth che
 
 ### Profile Editor (`/dashboard/profile`)
 - Form fields: full_name, bio, city, county, specialties, hourly_rate, languages, phone
-- PhotoUpload for profile photo
-- GalleryUpload for gallery photos
+- PhotoUpload for profile photo (Next.js `<Image>` in view mode)
+- GalleryUpload for gallery photos — gallery cap enforced at save: Basic = 5 photos, Featured = 15; limit shown in edit UI ("Max. X fotó (Basic/Kiemelt csomag)")
 - Gym location editor (add/remove gym pins)
 - Green "Sikeresen mentve." message shown for 4 seconds after save
 
@@ -199,10 +203,15 @@ HTML lang: `<html lang="hu">` in root layout
 
 ## Phase 6 Frontend Tasks
 
+- [x] SEO metadata: `generateMetadata()` on home (`/`), trainer directory (`/trainers`), trainer profiles (`/trainers/[id]`) ✅
+- [x] Open Graph tags on home + trainer profiles ✅
+- [x] `robots.ts` and `sitemap.ts` ✅
+- [x] JSON-LD Person schema on trainer profiles ✅
+- [x] Next.js `<Image>` used for all trainer photos (trainer-card, profile page, dashboard) ✅
+- [x] Mobile filter sidebar on `/trainers` (MobileFilterToggle) ✅
+- [x] ÁSZF page at `/aszf` ✅
+- [x] Footer links fixed (ÁSZF, Kapcsolat, Rólunk) ✅
+- [ ] `/rolunk` (About us) page — link exists, page not yet created
 - [ ] Mobile responsiveness audit: test all pages at 375px, 414px, 768px
 - [ ] Loading skeletons on TrainerCard list, TrainerMap, BookingView
-- [ ] Error states: 404 for inactive/missing trainer, form submission errors
-- [ ] SEO metadata: title + description per page in `generateMetadata()`
-- [ ] Open Graph tags for trainer profile pages (photo, name, bio)
 - [ ] Accessibility: keyboard nav, ARIA labels on interactive elements, color contrast check
-- [ ] Performance: verify Next.js `<Image>` used for all trainer photos (not `<img>`)

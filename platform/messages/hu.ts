@@ -94,6 +94,7 @@ export const hu = {
     bookings: "Foglalások",
     messages: "Üzenetek",
     billing: "Előfizetés",
+    preview: "Előnézet",
     pendingBookings: "Függő foglalások",
     unreadMessages: "Olvasatlan üzenetek",
     subscriptionStatus: "Előfizetés állapota",

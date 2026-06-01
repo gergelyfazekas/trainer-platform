@@ -117,8 +117,8 @@ Admin side (email-based):
 ```
 /dashboard/bookings
   → View list of all booking requests (pending/confirmed/cancelled)
-  → Confirm: status → confirmed
-  → Cancel: status → cancelled
+  → Confirm: status → confirmed → Resend email sent to visitor
+  → Cancel: status → cancelled → Resend email sent to visitor
 ```
 
 No automated calendar sync (e.g. Google Calendar). Trainer manages everything in dashboard.
@@ -202,7 +202,7 @@ No automated calendar sync (e.g. Google Calendar). Trainer manages everything in
   → Trainer confirms or cancels from dashboard
 ```
 
-**Note:** No in-app notification to visitor after trainer confirms/cancels. Trainer confirms manually; visitor only has the initial confirmation email.
+Trainer confirms or cancels from dashboard → visitor receives Resend email with appointment date and outcome (confirmed/cancelled).
 
 ### 4. Send a Message
 
@@ -242,7 +242,6 @@ Trainer profile page → click "Üzenet" tab in booking card
 
 **Still needed:**
 - [ ] Onboarding checklist for new trainers (complete profile → set availability → subscribe)
-- [ ] Empty states on dashboard (e.g. "Még nincs foglalásod", "Még nincs üzeneted")
 - [ ] Loading states / skeletons on trainer list, profile, booking calendar
-- [ ] Booking confirmation notification when trainer confirms/cancels (email to visitor)
 - [ ] Mobile UX audit: test booking flow, message form, public pages on 375px
+- [ ] `/rolunk` (About us) page

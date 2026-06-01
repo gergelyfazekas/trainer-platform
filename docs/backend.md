@@ -16,21 +16,23 @@ All routes are in `app/api/`. Each is a Next.js Route Handler (`route.ts`).
 **File:** `app/api/bookings/route.ts`  
 **Auth:** Public (no auth required — visitors don't have accounts)  
 **Flow:**
-1. Validate request body (trainer_id, visitor_name, visitor_email, visitor_phone, appointment_at, duration_min, notes)
-2. Race-condition check: re-fetch availability for the requested slot; reject if already booked
-3. Insert into `bookings` table via service client
-4. Send confirmation emails via Resend: one to visitor, one to trainer
-5. Return `201` with booking ID
+1. Rate limit check: 5 req/min/IP via `lib/rate-limit.ts` → 429 if exceeded
+2. Validate request body (trainer_id, visitor_name, visitor_email, visitor_phone, appointment_at, duration_min, notes)
+3. Race-condition check: re-fetch availability for the requested slot; reject if already booked
+4. Insert into `bookings` table via service client
+5. Send confirmation emails via Resend: one to visitor, one to trainer — all user strings HTML-escaped via `escapeHtml()`
+6. Return `201` with booking ID
 
 ### `POST /api/messages`
 **File:** `app/api/messages/route.ts`  
 **Auth:** Public  
 **Flow:**
-1. Validate request body (trainer_id, sender_name, sender_email, body)
-2. Honeypot check (hidden field must be empty — rejects bots)
-3. Insert into `messages` table via service client
-4. Send notification email to trainer via Resend (reply-to = sender_email)
-5. Return `201`
+1. Rate limit check: 5 req/min/IP via `lib/rate-limit.ts` → 429 if exceeded
+2. Validate request body (trainer_id, sender_name, sender_email, body)
+3. Honeypot check (hidden field must be empty — rejects bots)
+4. Insert into `messages` table via service client
+5. Send notification email to trainer via Resend (reply-to = sender_email) — all user strings HTML-escaped
+6. Return `201`
 
 ### `POST /api/stripe/checkout`
 **File:** `app/api/stripe/checkout/route.ts`  
@@ -277,9 +279,12 @@ Resend is instantiated lazily (not at module load) to avoid cold-start issues.
 From address: configured via `RESEND_FROM_EMAIL` env var.
 
 **Emails sent:**
-- Booking created → visitor confirmation + trainer notification
+- Booking created → visitor confirmation + trainer notification (`/api/bookings`)
+- Booking confirmed or cancelled by trainer → visitor notification (server action in `/dashboard/bookings/page.tsx`)
 - Message received → trainer notification (reply-to = visitor email, so trainer can reply from inbox)
 - Certificate uploaded → admin notification with approve/reject links (one-click in email, calls `/api/admin/certificate`)
+
+All email HTML is escaped via `escapeHtml()` before interpolation — user-supplied strings (names, message bodies) cannot inject HTML tags.
 
 No email templates yet — plain-text or inline HTML. Template polish is a Phase 6 task.
 

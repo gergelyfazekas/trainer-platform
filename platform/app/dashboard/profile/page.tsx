@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { X, Pencil, ChevronDown } from "lucide-react";
@@ -41,6 +42,7 @@ export default function ProfilePage() {
   const [editGymForm, setEditGymForm] = useState({ name: "", city: "", postal_code: "", street_address: "" });
   const [certUrl, setCertUrl] = useState<string | null>(null);
   const [certStatus, setCertStatus] = useState("none");
+  const [plan, setPlan] = useState<string | null>(null);
   const [editing, setEditing] = useState(isOnboarding);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -74,6 +76,14 @@ export default function ProfilePage() {
         .eq("trainer_id", user.id)
         .order("created_at");
       if (gymData) setGymLocations(gymData);
+
+      const { data: sub } = await supabase
+        .from("subscriptions")
+        .select("plan, status")
+        .eq("trainer_id", user.id)
+        .maybeSingle();
+      const isActiveSub = sub?.status === "active" || sub?.status === "trialing";
+      setPlan(isActiveSub ? (sub?.plan ?? null) : null);
 
       setLoading(false);
     }
@@ -152,6 +162,9 @@ export default function ProfilePage() {
     setError(null);
 
     const supabase = createClient();
+    const maxPhotos = plan === "featured" ? 15 : 5;
+    const galleryPhotos = (profile.gallery_photos ?? []).slice(0, maxPhotos);
+
     const { error: saveError } = await supabase
       .from("profiles")
       .update({
@@ -165,7 +178,7 @@ export default function ProfilePage() {
         profile_photo: profile.profile_photo,
         specialties: profile.specialties,
         languages: profile.languages,
-        gallery_photos: profile.gallery_photos,
+        gallery_photos: galleryPhotos,
         phone: profile.phone ?? null,
       })
       .eq("id", userId);
@@ -209,7 +222,11 @@ export default function ProfilePage() {
             <PhotoUpload
               userId={userId}
               currentUrl={profile.profile_photo ?? null}
-              onUpload={(url) => setField("profile_photo", url)}
+              onUpload={async (url) => {
+                setField("profile_photo", url);
+                const supabase = createClient();
+                await supabase.from("profiles").update({ profile_photo: url }).eq("id", userId);
+              }}
               label="Profilfotó"
             />
           )}
@@ -313,7 +330,12 @@ export default function ProfilePage() {
           </div>
 
           <div className="col-span-2">
-            <p className="text-sm font-medium text-[var(--th-fg)] mb-2">Galéria</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-[var(--th-fg)]">Galéria</p>
+              <p className="text-xs text-[var(--th-fg-muted)]">
+                Max. {plan === "featured" ? 15 : 5} fotó ({plan === "featured" ? "Kiemelt" : "Basic"} csomag)
+              </p>
+            </div>
             {userId && (
               <GalleryUpload
                 userId={userId}
@@ -494,9 +516,11 @@ export default function ProfilePage() {
       ) : (
         <div className="space-y-6">
           {profile.profile_photo && (
-            <img
+            <Image
               src={profile.profile_photo}
               alt="Profilfotó"
+              width={80}
+              height={80}
               className="w-20 h-20 rounded-full object-cover border border-[var(--th-border)]"
             />
           )}
@@ -550,7 +574,9 @@ export default function ProfilePage() {
               <p className="text-sm font-medium text-[var(--th-fg-muted)] mb-2">Galéria</p>
               <div className="grid grid-cols-3 gap-2">
                 {profile.gallery_photos.map((url, i) => (
-                  <img key={i} src={url} alt="" className="rounded-xl object-cover w-full h-28 border border-[var(--th-border)]" />
+                  <div key={i} className="relative h-28 rounded-xl overflow-hidden border border-[var(--th-border)]">
+                    <Image src={url} alt="" fill className="object-cover" sizes="(max-width: 768px) 33vw, 200px" />
+                  </div>
                 ))}
               </div>
             </div>

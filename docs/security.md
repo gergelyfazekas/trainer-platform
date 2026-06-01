@@ -104,12 +104,19 @@ It is **never** exposed to the client. Never referenced in `lib/supabase/client.
 ### Booking form (`/api/bookings`)
 - Required fields: trainer_id, visitor_name, visitor_email, appointment_at, duration_min
 - Race-condition check: availability re-validated at insert time
-- No rate limiting currently — Phase 6 consideration
+- **Rate limiting:** 5 requests/minute/IP via `lib/rate-limit.ts` (module-level Map, resets on cold start — best-effort on serverless)
+- **HTML injection prevention:** All user-supplied strings run through `escapeHtml()` before being interpolated into Resend email bodies
 
 ### Message form (`/api/messages`)
 - Required fields: trainer_id, sender_name, sender_email, body
 - **Honeypot field:** Hidden form field must be empty; bots typically fill all fields
-- No rate limiting currently — Phase 6 consideration
+- **Rate limiting:** 5 requests/minute/IP via `lib/rate-limit.ts`
+- **HTML injection prevention:** `escapeHtml()` applied to sender_name, sender_email, message_body before email interpolation
+
+### Search (`/trainers`)
+- URL params `q`, `availDays`, `availTimes` are used in raw PostgREST filter strings
+- **Injection fix:** `q` is stripped of PostgREST-significant characters (`(){}"'\`` etc.) and truncated to 100 chars before use
+- `availDays` and `availTimes` are filtered against a whitelist (`Set<string>`) before use in `.or()` filter strings
 
 ### Profile editor (`/dashboard/profile`)
 - Server-side: Supabase validates types (integer for hourly_rate, text[] for arrays)
@@ -121,8 +128,10 @@ It is **never** exposed to the client. Never referenced in `lib/supabase/client.
 
 | Item | Status | Reason |
 |---|---|---|
-| Rate limiting on public APIs | Not done | Low abuse risk at launch scale; add if needed |
-| CAPTCHA on booking/message forms | Not done | Honeypot sufficient for v1 |
+| Rate limiting on public APIs | ✅ Done | `lib/rate-limit.ts` — 5 req/min/IP on `/api/bookings` + `/api/messages` |
+| HTML injection in emails | ✅ Done | `escapeHtml()` applied to all user strings in email HTML |
+| PostgREST filter injection | ✅ Done | `q` sanitized; avail params whitelist-validated |
+| CAPTCHA on booking/message forms | Not done | Honeypot + rate limit sufficient for v1 |
 | Admin moderation / manual approval | Not done | Subscription payment is the gate; Stripe handles fraud |
 | Audit logs | Not done | Supabase logs available in dashboard |
 | Penetration testing | Not done | Recommended before major scale |

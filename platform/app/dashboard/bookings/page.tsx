@@ -1,6 +1,16 @@
+import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { hu } from "@/messages/hu";
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Függőben",
@@ -27,10 +37,42 @@ export default async function BookingsPage() {
   async function updateStatus(formData: FormData) {
     "use server";
     const id = formData.get("id") as string;
-    const status = formData.get("status") as "pending" | "confirmed" | "cancelled";
+    const newStatus = formData.get("status") as "pending" | "confirmed" | "cancelled";
     const supabase = await createClient();
-    await supabase.from("bookings").update({ status }).eq("id", id);
+
+    const { data: booking } = await supabase
+      .from("bookings")
+      .select("visitor_email, visitor_name, appointment_at")
+      .eq("id", id)
+      .single();
+
+    await supabase.from("bookings").update({ status: newStatus }).eq("id", id);
     revalidatePath("/dashboard/bookings");
+
+    if (booking && (newStatus === "confirmed" || newStatus === "cancelled")) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const fmt = (ts: string) =>
+        new Intl.DateTimeFormat("hu-HU", {
+          dateStyle: "full",
+          timeStyle: "short",
+          timeZone: "Europe/Budapest",
+        }).format(new Date(ts));
+      const isConfirmed = newStatus === "confirmed";
+      await resend.emails
+        .send({
+          from: process.env.RESEND_FROM_EMAIL!,
+          to: booking.visitor_email,
+          subject: isConfirmed ? "Foglalásod visszaigazolva" : "Foglalásod lemondva",
+          html: `<p>Kedves ${escapeHtml(booking.visitor_name)}!</p>
+            <p>Foglalásod <strong>${fmt(booking.appointment_at)}</strong> időpontra
+            ${isConfirmed ? "<strong>visszaigazolásra került</strong>" : "<strong>lemondásra került</strong>"}.</p>
+            ${isConfirmed
+              ? "<p>Az edző felveszi veled a kapcsolatot a részletekért.</p>"
+              : "<p>Kérjük, látogass vissza és válassz másik időpontot.</p>"
+            }`,
+        })
+        .catch(() => {});
+    }
   }
 
   const fmt = (ts: string) =>
