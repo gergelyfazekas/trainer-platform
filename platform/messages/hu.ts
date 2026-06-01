@@ -13,7 +13,7 @@ export const hu = {
     subtitle:
       "Böngéssz Magyarország legjobb személyi edzői között, és foglalj időpontot percek alatt.",
     cta: "Edzők böngészése",
-    trainerCta: "Edző vagyok – Hirdessem magam",
+    trainerCta: "Edző vagyok",
   },
   search: {
     placeholder: "Helyszín, szakágak…",
