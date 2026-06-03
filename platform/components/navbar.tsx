@@ -43,9 +43,11 @@ export async function Navbar({ activeHref, variant = "light" }: NavbarProps) {
           <BrandLogo variant={isDark ? "dark" : "light"} />
         </Link>
         <nav className="flex items-center gap-1">
-          <Link href="/trainers" className={linkClass("/trainers")}>
-            {hu.nav.trainers}
-          </Link>
+          {process.env.PREPROD !== "true" && (
+            <Link href="/trainers" className={linkClass("/trainers")}>
+              {hu.nav.trainers}
+            </Link>
+          )}
           {user ? (
             <Link
               href="/dashboard"
