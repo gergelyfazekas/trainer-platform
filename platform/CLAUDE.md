@@ -18,7 +18,7 @@ Hungary-only v1: all UI copy is Hungarian, currency is HUF, timezone is `Europe/
 - **Maps:** Leaflet (trainer locations, gym pins)
 - **Hosting:** Vercel
 
-## Project Status (as of 2026-05-25)
+## Project Status (as of 2026-06-03)
 
 **Phases 1–6 complete. Live at https://foglaljedzot.hu in preprod (coming-soon) mode.**
 
@@ -30,12 +30,18 @@ Built and working:
 - Public APIs: `/api/bookings` (race-condition safe), `/api/messages` (honeypot spam check), both send Resend emails
 - 126-key Hungarian translation file at `messages/hu.ts`
 - Preprod/coming-soon mode (see `PREPROD` env var below)
+- **Onboarding checklist** on `/dashboard` overview — 4-step `SetupChecklist` card (alap profil, elérhetőség, csomagok, előfizetés); disappears when all steps complete; subscription step shown in amber as critical blocker; after first onboarding profile save, redirects to `/dashboard` so trainer lands on checklist
+- **Landing page** dark CTA section now shows a realistic `DashboardMockup` component (browser chrome + sidebar + profile form) instead of placeholder boxes
+- **Preprod navbar**: "Edzők" link hidden when `PREPROD=true`
+- **Billing robustness**: both Stripe route handlers wrapped in top-level try/catch (always return JSON); client checks `res.ok` before calling `.json()` to prevent freeze on HTML error responses
+- **Invoicing**: Stripe handles all invoices; if trainer has `business_name` set, a Stripe customer is pre-created with that name before checkout so invoices show the business entity, not their email
 
 Remaining before full launch:
 - `/rolunk` page (About us) — dead link in footer
 - Run Supabase migration 005 + create `trainer-certificates` storage bucket manually
 - Switch to live Stripe keys + register live webhook on Vercel
 - Resend domain verification for `foglaljedzot.hu`
+- Enable Customer Portal invoice history: Stripe Dashboard → Settings → Customer Portal → Invoice history ON
 - Remove `PREPROD=true` from Vercel env vars when 5–10 trainers are onboarded
 
 ## Key Conventions
@@ -73,6 +79,32 @@ See `.env.local.example` for the full list. Key vars:
 - `STRIPE_BASIC_PRICE_ID` / `STRIPE_FEATURED_PRICE_ID` — created in Stripe dashboard (HUF, Stripe Tax enabled)
 - `RESEND_API_KEY` / `RESEND_FROM_EMAIL`
 - `PREPROD` — set to `"true"` for coming-soon mode; remove or set to `"false"` to go live
+
+## Invoicing & Hungarian Tax
+
+Stripe handles all invoicing — no custom invoice system. Trainers download invoices from the Customer Portal (`/api/stripe/portal` → billing page "Kezelés" button).
+
+Checkout is configured with `automatic_tax: { enabled: true }`, `tax_id_collection: { enabled: true }`, and `billing_address_collection: "required"`. Stripe applies 27% ÁFA and collects the trainer's tax ID and billing address during checkout.
+
+**Business name on invoices:** If `profiles.business_name` is set, the checkout route pre-creates a Stripe customer with that name before the session, so the invoice shows the correct entity (e.g. "Kovács Péter e.v.") instead of the email address.
+
+**Hungarian tax forms:** All three forms (átalányadózás, vállalkozói SZJA, KATA) can use Stripe invoices as expense receipts. VAT recoverability differs by form but is the trainer's accountant's concern, not the platform's.
+
+**One-time Stripe Dashboard setup:** Settings → Customer Portal → enable "Invoice history" so trainers can self-serve past invoices.
+
+**Local dev:** Add `http://localhost:3000/**` to Supabase → Authentication → URL Configuration → Redirect URLs. Without this, auth redirects from localhost go to the production site (Supabase falls back to Site URL when the redirectTo isn't allowlisted).
+
+## Onboarding Flow
+
+New trainers: `auth/callback` → `/dashboard/profile?onboarding=1` (edit mode auto-opens). After first save → redirect to `/dashboard`.
+
+`/dashboard` overview shows `SetupChecklist` until all 4 steps are complete:
+1. **Alap profil** — `full_name + city + hourly_rate + profile_photo` all set → links to `/dashboard/profile?edit=1`
+2. **Elérhetőség** — at least one general availability period or specific slot → `/dashboard/availability`
+3. **Csomagok** — at least one package → `/dashboard/packages`
+4. **Előfizetés** — active subscription → `/dashboard/billing` (shown in amber — hard blocker for public visibility)
+
+Profile page params: `?onboarding=1` starts edit mode + redirects to `/dashboard` after save. `?edit=1` starts edit mode only (no redirect after save).
 
 ## Supabase Project
 
