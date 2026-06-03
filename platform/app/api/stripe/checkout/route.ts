@@ -19,18 +19,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
     }
 
-    const { data: existingSub } = await supabase
-      .from("subscriptions")
-      .select("stripe_customer_id")
-      .eq("trainer_id", user.id)
-      .maybeSingle();
+    const [{ data: existingSub }, { data: profile }] = await Promise.all([
+      supabase.from("subscriptions").select("stripe_customer_id").eq("trainer_id", user.id).maybeSingle(),
+      supabase.from("profiles").select("business_name").eq("id", user.id).single(),
+    ]);
 
     const origin = request.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
+    // For new subscribers with a business name, pre-create the Stripe customer so
+    // the business name appears on invoices without the trainer having to retype it.
+    let customerId = existingSub?.stripe_customer_id ?? undefined;
+    if (!customerId && profile?.business_name) {
+      const customer = await getStripe().customers.create({
+        email: user.email ?? undefined,
+        name: profile.business_name,
+        metadata: { trainer_id: user.id },
+      });
+      customerId = customer.id;
+    }
+
     const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
-      customer: existingSub?.stripe_customer_id ?? undefined,
-      customer_email: existingSub ? undefined : user.email,
+      customer: customerId,
+      customer_email: customerId ? undefined : user.email,
       line_items: [{ price: PLANS[plan], quantity: 1 }],
       automatic_tax: { enabled: true },
       tax_id_collection: { enabled: true },

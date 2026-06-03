@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { X, Pencil, ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -29,8 +30,10 @@ const HUNGARIAN_COUNTIES = [
 
 
 export default function ProfilePage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const isOnboarding = searchParams.get("onboarding") === "1";
+  const startInEditMode = isOnboarding || searchParams.get("edit") === "1";
 
   const [profile, setProfile] = useState<Profile>({});
   const [profileSnapshot, setProfileSnapshot] = useState<Profile>({});
@@ -43,7 +46,7 @@ export default function ProfilePage() {
   const [certUrl, setCertUrl] = useState<string | null>(null);
   const [certStatus, setCertStatus] = useState("none");
   const [plan, setPlan] = useState<string | null>(null);
-  const [editing, setEditing] = useState(isOnboarding);
+  const [editing, setEditing] = useState(startInEditMode);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -185,6 +188,9 @@ export default function ProfilePage() {
 
     if (saveError) {
       setError(saveError.message);
+    } else if (isOnboarding) {
+      router.push("/dashboard");
+      return;
     } else {
       setProfileSnapshot(profile);
       setEditing(false);
@@ -705,7 +711,7 @@ function SpecialtiesSelect({ selected, onChange }: { selected: string[]; onChang
           value={customInput}
           onChange={(e) => setCustomInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustom())}
-          placeholder="Egyéni szakág hozzáadása…"
+          placeholder="Egyéni szakterület hozzáadása…"
           className={inputClass}
         />
         <button
