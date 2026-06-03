@@ -18,6 +18,7 @@ const PLAN_FEATURES = {
 export default function BillingPage() {
   const [sub, setSub] = useState<Subscription | null | undefined>(undefined);
   const [loading, setLoading] = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -34,24 +35,45 @@ export default function BillingPage() {
     load();
   }, []);
 
-  async function startCheckout(plan: "basic" | "featured") {
+  async function redirectToStripe(fetchPromise: Promise<Response>, errorMsg: string) {
     setLoading(true);
-    const res = await fetch("/api/stripe/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan }),
-    });
-    const { url } = await res.json();
-    if (url) window.location.href = url;
-    else setLoading(false);
+    setStripeError(null);
+    try {
+      const res = await fetchPromise;
+      if (!res.ok) {
+        setStripeError(errorMsg);
+        setLoading(false);
+        return;
+      }
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setStripeError(errorMsg);
+        setLoading(false);
+      }
+    } catch {
+      setStripeError(errorMsg);
+      setLoading(false);
+    }
   }
 
-  async function openPortal() {
-    setLoading(true);
-    const res = await fetch("/api/stripe/portal", { method: "POST" });
-    const { url } = await res.json();
-    if (url) window.location.href = url;
-    else setLoading(false);
+  function startCheckout(plan: "basic" | "featured") {
+    redirectToStripe(
+      fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      }),
+      "Nem sikerült megnyitni a fizetési oldalt. Kérjük, próbáld újra."
+    );
+  }
+
+  function openPortal() {
+    redirectToStripe(
+      fetch("/api/stripe/portal", { method: "POST" }),
+      "Nem sikerült megnyitni a számlázási portált. Kérjük, próbáld újra."
+    );
   }
 
   const fmtDate = (iso: string) =>
@@ -66,6 +88,12 @@ export default function BillingPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold text-[var(--th-fg)]">{hu.dashboard.billing}</h1>
+
+      {stripeError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+          {stripeError}
+        </div>
+      )}
 
       {sub && (
         <div className="bg-white border border-[var(--th-border)] rounded-xl p-5 space-y-3">
