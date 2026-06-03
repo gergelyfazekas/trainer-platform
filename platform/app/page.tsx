@@ -87,22 +87,7 @@ function ComingSoonPage() {
                 Regisztrálj edzőként
               </Link>
             </div>
-            <div className="flex-1 max-w-[420px] bg-white/10 rounded-2xl p-6 space-y-3">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-6 h-6 rounded-md bg-white/20" />
-                <div className="h-3 bg-white/30 rounded w-24" />
-              </div>
-              <div className="h-2.5 bg-white/20 rounded w-full" />
-              <div className="h-2.5 bg-white/15 rounded w-4/5" />
-              <div className="h-2.5 bg-white/15 rounded w-3/5" />
-              <div className="mt-5 grid grid-cols-3 gap-2">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-12 bg-white/10 rounded-xl" />
-                ))}
-              </div>
-              <div className="mt-3 h-2 bg-white/10 rounded w-full" />
-              <div className="h-2 bg-white/10 rounded w-2/3" />
-            </div>
+            <DashboardMockup />
           </div>
         </section>
       </main>
@@ -259,23 +244,7 @@ export default async function HomePage() {
                 Regisztrálj edzőként
               </Link>
             </div>
-            {/* Dashboard mock */}
-            <div className="flex-1 max-w-[420px] bg-white/10 rounded-2xl p-6 space-y-3">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-6 h-6 rounded-md bg-white/20" />
-                <div className="h-3 bg-white/30 rounded w-24" />
-              </div>
-              <div className="h-2.5 bg-white/20 rounded w-full" />
-              <div className="h-2.5 bg-white/15 rounded w-4/5" />
-              <div className="h-2.5 bg-white/15 rounded w-3/5" />
-              <div className="mt-5 grid grid-cols-3 gap-2">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-12 bg-white/10 rounded-xl" />
-                ))}
-              </div>
-              <div className="mt-3 h-2 bg-white/10 rounded w-full" />
-              <div className="h-2 bg-white/10 rounded w-2/3" />
-            </div>
+            <DashboardMockup />
           </div>
         </section>
       </main>
@@ -346,6 +315,119 @@ export default async function HomePage() {
           © {new Date().getFullYear()} foglalj edzőt. Minden jog fenntartva.
         </div>
       </footer>
+    </div>
+  );
+}
+
+function DashboardMockup() {
+  const nav = ["Áttekintés", "Profil", "Elérhetőség", "Csomagok", "Foglalások", "Üzenetek", "Számlázás"];
+
+  return (
+    <div className="flex-1 max-w-[460px] relative hidden md:block">
+      <div className="absolute -inset-8 bg-[#D05A2E]/10 blur-3xl rounded-full pointer-events-none" />
+      <div className="relative rounded-2xl overflow-hidden shadow-[0_32px_64px_-8px_rgba(0,0,0,0.65)] border border-white/10 -rotate-0 hover:rotate-0 transition-transform duration-500">
+
+        {/* Browser chrome */}
+        <div className="bg-[#1c1c1e] h-8 flex items-center px-4 gap-3 shrink-0">
+          <div className="flex gap-1.5 shrink-0">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+          </div>
+          <div className="flex-1 bg-white/[0.07] rounded h-[18px] flex items-center justify-center">
+            <span className="text-white/30 text-[9.5px]">foglaljedzot.hu/dashboard/profile</span>
+          </div>
+        </div>
+
+        {/* App shell */}
+        <div className="flex" style={{ height: "336px", background: "#FAF8F3" }}>
+
+          {/* Sidebar */}
+          <div className="w-[118px] bg-white border-r border-[#E8ECF2] py-3 flex flex-col shrink-0">
+            <div className="px-3.5 mb-3.5">
+              <span className="text-[11px] font-bold text-[#0F172A]">foglalj&nbsp;<span className="text-[#D05A2E]">edzőt</span></span>
+            </div>
+            {nav.map((item) => {
+              const active = item === "Profil";
+              return (
+                <div
+                  key={item}
+                  className={`px-3.5 py-[6.5px] text-[10.5px] leading-none ${
+                    active
+                      ? "bg-[#FEF0E8] text-[#D05A2E] font-semibold border-r-2 border-[#D05A2E]"
+                      : "text-[#64748B]"
+                  }`}
+                >
+                  {item}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Main content */}
+          <div className="flex-1 p-4 overflow-hidden min-w-0 flex flex-col gap-3">
+
+            {/* Page header */}
+            <div className="flex items-center justify-between shrink-0">
+              <span className="text-[12px] font-bold text-[#0F172A]">Profil</span>
+              <span className="text-[9px] font-semibold text-[#0F172A] bg-white border border-[#CBD5E1] rounded-full px-2.5 py-[4px]">
+                ✎ Szerkesztés
+              </span>
+            </div>
+
+            {/* Avatar + identity */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#EAA258] to-[#C04E26] flex items-center justify-center text-white font-bold text-[13px] shadow shrink-0">
+                KP
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11.5px] font-semibold text-[#0F172A] leading-snug">Kovács Péter</p>
+                <p className="text-[10px] text-[#64748B]">Budapest · Pest megye</p>
+              </div>
+              <span className="ml-auto shrink-0 text-[8px] font-bold px-2 py-[3px] rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                Kiemelt
+              </span>
+            </div>
+
+            {/* Fields row */}
+            <div className="grid grid-cols-2 gap-2 shrink-0">
+              {[
+                { label: "Óradíj (Ft)", value: "8 500" },
+                { label: "Telefonszám", value: "+36 20 123 4567" },
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <p className="text-[9px] text-[#64748B] mb-1">{label}</p>
+                  <div className="bg-white border border-[#CBD5E1] rounded-lg px-2.5 py-[5px] text-[10.5px] text-[#0F172A]">
+                    {value}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Specialties */}
+            <div className="shrink-0">
+              <p className="text-[9px] text-[#64748B] mb-1.5">Szakterületek</p>
+              <div className="flex flex-wrap gap-1">
+                {["Erőnléti edzés", "HIIT", "Fogyás / Zsírégetés", "Futás"].map((s) => (
+                  <span key={s} className="text-[9px] px-2 py-[3px] rounded-full bg-[#D05A2E] text-white font-medium">
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div className="flex-1 min-h-0">
+              <p className="text-[9px] text-[#64748B] mb-1">Bemutatkozás</p>
+              <div className="bg-white border border-[#CBD5E1] rounded-lg px-2.5 py-2 text-[9.5px] text-[#64748B] leading-relaxed">
+                10+ éve segítem ügyfeleimet céljuk elérésében. Egyénre szabott edzéstervek, rugalmas időpontok és valódi eredmények.
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
